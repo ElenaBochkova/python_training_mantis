@@ -1,5 +1,6 @@
 from selenium.common.exceptions import NoSuchElementException
 from model.projects import Project
+import time
 
 class ProjectHelper:
 
@@ -15,24 +16,20 @@ class ProjectHelper:
         wd = self.app.wd
         self.open_project_list()
         project_list = []
-        elements = wd.find_elements_by_css_selector("tr")
-        if len(elements) <=9:
-            return project_list
-        elif len(elements)>9:
-            row_name = ["tr.row-1", "tr.row-2"]
-            for row in row_name:
-                elems = wd.find_elements_by_css_selector(row)
-                for elem in elems:
-                    cells = elem.find_elements_by_css_selector("td")
-                    try:
-                        link = cells[0].find_element_by_tag_name("a").get_attribute("href")
-                        project_name = cells[0].text
-                        v = link.index("=")
-                        project_id = link[v+1:len(link)]
-                        project_description = cells[4].text
-                        project_list.append(Project(id=project_id, name=project_name, description=project_description))
-                    except NoSuchElementException:
-                        pass
+        row_name = ["tr.row-1", "tr.row-2"]
+        for row in row_name:
+            elems = wd.find_elements_by_css_selector(row)
+            for elem in elems:
+                cells = elem.find_elements_by_css_selector("td")
+                try:
+                    link = cells[0].find_element_by_tag_name("a").get_attribute("href")
+                    project_name = cells[0].text
+                    v = link.index("=")
+                    project_id = link[v+1:len(link)]
+                    project_description = cells[4].text
+                    project_list.append(Project(id=project_id, name=project_name, description=project_description))
+                except NoSuchElementException:
+                    pass
         return project_list
 
     def create_project(self, new_project):
@@ -46,3 +43,18 @@ class ProjectHelper:
         wd.find_element_by_name("description").clear()
         wd.find_element_by_name("description").send_keys(new_project.description)
         wd.find_element_by_xpath("//input[@value='Add Project']").click()
+
+    def project_is_in_list(self, proj, proj_list):
+        for p in proj_list:
+            if p.name == proj.name:
+                return True
+        return False
+
+    def delete_by_name(self, name):
+        wd = self.app.wd
+        self.open_project_list()
+        wd.find_element_by_link_text(name).click()
+        wd.find_element_by_xpath("//input[@value='Delete Project']").click()
+        wd.find_element_by_xpath("//input[@value='Delete Project']").click()
+
+

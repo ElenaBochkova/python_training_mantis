@@ -14,6 +14,7 @@ class MailHelper:
             pop.user(username)
             pop.pass_(password)
             num = pop.stat()[0]
+            print("num = " + str(num))
             if num > 0:
                 for n in range(num):
                     msglines = pop.retr(n+1)[1]
